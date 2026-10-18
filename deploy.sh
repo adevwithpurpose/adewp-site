@@ -14,9 +14,16 @@ cd "$REPO_DIR" || exit 1
 
 MARKER=/home/dronecul/adewp-deploy.commit
 
+SELF_BEFORE=$(md5sum "$0" | cut -d' ' -f1)
 git fetch origin main --quiet || exit 1
 git reset --hard origin/main --quiet || exit 1
 NEW=$(git rev-parse HEAD 2>/dev/null)
+
+# the reset may have replaced this script mid-run; re-exec the fresh copy once
+if [ -z "${ADWP_REEXEC:-}" ] && [ "$(md5sum "$0" | cut -d' ' -f1)" != "$SELF_BEFORE" ]; then
+  export ADWP_REEXEC=1
+  exec /bin/bash "$0"
+fi
 
 # deploy whenever the docroot is behind main, no matter how the repo got updated
 DEPLOYED=$(cat "$MARKER" 2>/dev/null || echo none)
