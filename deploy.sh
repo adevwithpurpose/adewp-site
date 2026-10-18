@@ -30,7 +30,7 @@ echo "$(date '+%Y-%m-%d %H:%M:%S') deploying $NEW"
 /bin/cp assets/js/main.js "$DEPLOYPATH/assets/js/"
 /bin/cp assets/js/vendor/gsap.min.js assets/js/vendor/ScrollTrigger.min.js assets/js/vendor/three.module.min.js "$DEPLOYPATH/assets/js/vendor/"
 /bin/cp assets/fonts/space-grotesk-latin.woff2 assets/fonts/space-grotesk-latinext.woff2 assets/fonts/jetbrains-mono-latin.woff2 assets/fonts/jetbrains-mono-latinext.woff2 "$DEPLOYPATH/assets/fonts/"
-/bin/cp assets/favicon.svg assets/favicon-32.png assets/apple-touch-icon.png assets/og.png "$DEPLOYPATH/assets/" 2>/dev/null || true
+/bin/cp assets/favicon.svg assets/favicon-32.png assets/apple-touch-icon.png assets/og.png assets/opengrammar-demo.gif "$DEPLOYPATH/assets/" 2>/dev/null || true
 
 echo "$NEW" > "$MARKER"
 echo "$(date '+%Y-%m-%d %H:%M:%S') done"
