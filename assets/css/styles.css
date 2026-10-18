@@ -30,7 +30,7 @@
   --line-strong: rgba(94, 234, 180, 0.28);
   --text: #e7f1ec;
   --dim: #8fa69c;
-  --faint: #5d7268;
+  --faint: #718a7d;
   --accent: #34d399;
   --accent-2: #7ef0c4;
   --cyan: #5eead4;
@@ -411,3 +411,21 @@ h1 {
   .pulse-dot, .hero-hint::after { animation: none; }
   * { transition: none !important; }
 }
+
+/* ---------- v3.1 polish pass (craft-floor: browser surfaces, states, targets) ---------- */
+::selection { background: rgba(52, 211, 153, 0.85); color: #04110b; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+a { text-underline-offset: 3px; }
+.site-nav a, .footer-links a, .footer-mail { display: inline-flex; align-items: center; min-height: 44px; }
+html { scrollbar-color: rgba(52, 211, 153, 0.35) #0a0f10; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0a0f10; }
+::-webkit-scrollbar-thumb { background: rgba(52, 211, 153, 0.28); border-radius: 6px; border: 2px solid #0a0f10; }
+::-webkit-scrollbar-thumb:hover { background: rgba(52, 211, 153, 0.45); }
+.chat-input input { caret-color: var(--accent); }
+.chat-input button { display: inline-flex; align-items: center; }
+.btn:active { transform: translateY(0); }
+/* proof gif: crop the gray band at its bottom, keep the app window */
+.proof-media img { aspect-ratio: 16 / 10; object-fit: cover; object-position: top center; height: auto; }
+/* pipeline card: pull the log line out of the dead space */
+.pipe-log { margin-top: auto; }
