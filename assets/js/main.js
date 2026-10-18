@@ -129,10 +129,14 @@ function initMotion() {
         const stages = sceneEl.querySelectorAll('[data-stage]');
         const token = sceneEl.querySelector('[data-token]');
         const track = sceneEl.querySelector('.pipe-track');
-        const w = () => track.clientWidth - 10;
+        const xFor = (i) => {
+          const s = stages[i];
+          return s.offsetLeft + s.offsetWidth / 2 - 5 - (token.offsetLeft - parseFloat(getComputedStyle(token).left || 0));
+        };
         tl.from(stages, { y: 16, autoAlpha: 0, stagger: 0.1 }, 0.1);
-        for (let i = 0; i < 4; i++) {
-          tl.to(token, { x: () => (w() / 3) * i, duration: 0.5, ease: 'power1.inOut' }, 0.6 + i * 0.55)
+        tl.set(token, { x: () => xFor(0) }, 0.55);
+        for (let i = 1; i < 4; i++) {
+          tl.to(token, { x: () => xFor(i), duration: 0.5, ease: 'power1.inOut' }, 0.6 + i * 0.55)
             .add(() => stages.forEach((s, j) => s.classList.toggle('lit', j <= i)), 0.6 + i * 0.55);
         }
         tl.from(sceneEl.querySelector('[data-pipe-log]'), { autoAlpha: 0 }, 2.8);
