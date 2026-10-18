@@ -24,7 +24,7 @@ async function initHero() {
   mount.appendChild(renderer.domElement);
 
   // nodes
-  const N = 70;
+  const N = 90;
   const positions = new Float32Array(N * 3);
   const pts = [];
   for (let i = 0; i < N; i++) {
@@ -38,19 +38,30 @@ async function initHero() {
   }
   const pGeo = new THREE.BufferGeometry();
   pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  // soft radial sprite = glowing node
+  const sc = document.createElement('canvas'); sc.width = sc.height = 64;
+  const sg = sc.getContext('2d');
+  const grad = sg.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.35, 'rgba(140,255,205,0.85)');
+  grad.addColorStop(1, 'rgba(52,211,153,0)');
+  sg.fillStyle = grad; sg.fillRect(0, 0, 64, 64);
+  const sprite = new THREE.CanvasTexture(sc);
   const points = new THREE.Points(pGeo, new THREE.PointsMaterial({
-    color: 0x4ade80, size: 0.14, transparent: true, opacity: 0.9, sizeAttenuation: true
+    color: 0x6ee7b7, size: 0.55, map: sprite, transparent: true, opacity: 0.95,
+    sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false
   }));
 
   // edges between near nodes
   const linePos = [];
   for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) {
-    if (pts[i].distanceTo(pts[j]) < 4.2) linePos.push(pts[i].x, pts[i].y, pts[i].z, pts[j].x, pts[j].y, pts[j].z);
+    if (pts[i].distanceTo(pts[j]) < 4.6) linePos.push(pts[i].x, pts[i].y, pts[i].z, pts[j].x, pts[j].y, pts[j].z);
   }
   const lGeo = new THREE.BufferGeometry();
   lGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePos), 3));
   const lines = new THREE.LineSegments(lGeo, new THREE.LineBasicMaterial({
-    color: 0x22d3ee, transparent: true, opacity: 0.16
+    color: 0x34d399, transparent: true, opacity: 0.22,
+    blending: THREE.AdditiveBlending, depthWrite: false
   }));
 
   const group = new THREE.Group();
@@ -156,13 +167,13 @@ function initMotion() {
     });
 
     // generic reveals
-    gsap.utils.toArray('.steps li, .about p, .about .cta-row').forEach((el) => {
+    gsap.utils.toArray('.steps li, .proof-card, .facts li, .about p, .about .cta-row, .how-note').forEach((el) => {
       gsap.from(el, { y: 24, autoAlpha: 0, duration: 0.6, ease: 'power2.out',
         scrollTrigger: { trigger: el, start: 'top 88%' } });
     });
   } else {
     // mobile: light fades only
-    gsap.utils.toArray('.scene-copy, .scene-visual, .steps li, [data-msg]').forEach((el) => {
+    gsap.utils.toArray('.scene-copy, .scene-visual, .steps li, .proof-card, .facts li, [data-msg]').forEach((el) => {
       gsap.from(el, { autoAlpha: 0, y: 14, duration: 0.5, ease: 'power1.out',
         scrollTrigger: { trigger: el, start: 'top 92%' } });
     });
