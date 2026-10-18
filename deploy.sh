@@ -33,7 +33,7 @@ echo "$(date '+%Y-%m-%d %H:%M:%S') deploying $NEW"
 
 /bin/cp index.html "$DEPLOYPATH"
 /bin/mkdir -p "$DEPLOYPATH/assets/css" "$DEPLOYPATH/assets/js/vendor" "$DEPLOYPATH/assets/fonts"
-/bin/cp assets/css/styles.css "$DEPLOYPATH/assets/css/"
+/bin/cp assets/css/styles.css assets/css/v4.css "$DEPLOYPATH/assets/css/"
 /bin/cp assets/js/main.js "$DEPLOYPATH/assets/js/"
 /bin/cp assets/js/vendor/gsap.min.js assets/js/vendor/ScrollTrigger.min.js assets/js/vendor/three.module.min.js "$DEPLOYPATH/assets/js/vendor/"
 /bin/cp assets/fonts/space-grotesk-latin.woff2 assets/fonts/space-grotesk-latinext.woff2 assets/fonts/jetbrains-mono-latin.woff2 assets/fonts/jetbrains-mono-latinext.woff2 "$DEPLOYPATH/assets/fonts/"
