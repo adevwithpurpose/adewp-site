@@ -12,13 +12,15 @@ DEPLOYPATH=/home/dronecul/adevwithpurpose.com/
 
 cd "$REPO_DIR" || exit 1
 
-OLD=$(git rev-parse HEAD 2>/dev/null)
+MARKER=/home/dronecul/adewp-deploy.commit
+
 git fetch origin main --quiet || exit 1
 git reset --hard origin/main --quiet || exit 1
 NEW=$(git rev-parse HEAD 2>/dev/null)
 
-# nothing new -> nothing to do
-[ "$OLD" = "$NEW" ] && exit 0
+# deploy whenever the docroot is behind main, no matter how the repo got updated
+DEPLOYED=$(cat "$MARKER" 2>/dev/null || echo none)
+[ "$NEW" = "$DEPLOYED" ] && exit 0
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') deploying $NEW"
 
@@ -30,4 +32,5 @@ echo "$(date '+%Y-%m-%d %H:%M:%S') deploying $NEW"
 /bin/cp assets/fonts/space-grotesk-latin.woff2 assets/fonts/space-grotesk-latinext.woff2 assets/fonts/jetbrains-mono-latin.woff2 assets/fonts/jetbrains-mono-latinext.woff2 "$DEPLOYPATH/assets/fonts/"
 /bin/cp assets/favicon.svg assets/favicon-32.png assets/apple-touch-icon.png assets/og.png "$DEPLOYPATH/assets/" 2>/dev/null || true
 
+echo "$NEW" > "$MARKER"
 echo "$(date '+%Y-%m-%d %H:%M:%S') done"
