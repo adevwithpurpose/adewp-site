@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/USER/adevwithpurpose.com/
+    - export DEPLOYPATH=/home/dronecul/adevwithpurpose.com/
     - /bin/cp index.html $DEPLOYPATH
     - /bin/mkdir -p $DEPLOYPATH/assets/css $DEPLOYPATH/assets/js/vendor
     - /bin/cp assets/css/styles.css $DEPLOYPATH/assets/css/
