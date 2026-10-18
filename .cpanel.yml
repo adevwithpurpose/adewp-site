@@ -1,0 +1,9 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/USER/adevwithpurpose.com/
+    - /bin/cp index.html $DEPLOYPATH
+    - /bin/mkdir -p $DEPLOYPATH/assets/css $DEPLOYPATH/assets/js/vendor
+    - /bin/cp assets/css/styles.css $DEPLOYPATH/assets/css/
+    - /bin/cp assets/js/main.js $DEPLOYPATH/assets/js/
+    - /bin/cp assets/js/vendor/gsap.min.js assets/js/vendor/ScrollTrigger.min.js assets/js/vendor/three.module.min.js $DEPLOYPATH/assets/js/vendor/
