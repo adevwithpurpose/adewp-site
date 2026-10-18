@@ -251,7 +251,7 @@ h1 {
   border: 1px solid var(--line); border-radius: 9px; padding: 0.55rem 0.85rem;
   background: var(--bg-2); position: relative; z-index: 1; transition: color 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
-.pipe-stage.on {
+.pipe-stage.lit {
   color: var(--accent-2); border-color: var(--accent);
   box-shadow: 0 0 22px rgba(52, 211, 153, 0.25);
 }
