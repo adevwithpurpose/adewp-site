@@ -86,14 +86,17 @@ async function initHero() {
 
   const clock = new THREE.Clock();
   let raf = 0;
-  function tick() {
+  let lastFrame = 0;
+  function tick(now = 0) {
+    raf = requestAnimationFrame(tick);
+    if (document.hidden || now - lastFrame < 32) return;
+    lastFrame = now;
     const t = clock.getElapsedTime();
     group.rotation.y = t * 0.05 + mx * 0.35 + scrollT * 1.1;
     group.rotation.x = my * 0.2 + scrollT * 0.25;
     camera.position.z = 16 - scrollT * 6;
     group.position.y = Math.sin(t * 0.4) * 0.25;
     renderer.render(scene, camera);
-    raf = requestAnimationFrame(tick);
   }
   tick();
 
@@ -144,7 +147,24 @@ function initDemoVideos() {
     const soundBtn = slot.querySelector('.demo-sound');
     const playBtn = slot.querySelector('.demo-play');
 
-    v.addEventListener('canplay', () => slot.classList.add('is-ready'), { once: true });
+    let loaded = false;
+    let inView = false;
+    const loadVideo = () => {
+      if (loaded) return;
+      loaded = true;
+      slot.classList.add('is-loading');
+      status.textContent = 'Loading demo…';
+      if (v.dataset.src) v.src = v.dataset.src;
+      v.load();
+    };
+    v.addEventListener('canplay', () => { slot.classList.add('is-ready'); slot.classList.remove('is-loading', 'is-error'); status.textContent = ''; });
+    const status = document.createElement('span');
+    status.className = 'demo-status';
+    status.setAttribute('role', 'status');
+    slot.appendChild(status);
+    v.addEventListener('waiting', () => { slot.classList.add('is-loading'); status.textContent = 'Loading demo…'; });
+    v.addEventListener('playing', () => { slot.classList.remove('is-loading', 'is-error'); status.textContent = ''; });
+    v.addEventListener('error', () => { slot.classList.remove('is-loading'); slot.classList.add('is-error', 'is-paused'); status.textContent = 'Video unavailable. Tap play to retry.'; loaded = false; });
     if (v.readyState >= 3) slot.classList.add('is-ready');
 
     const syncPaused = () => slot.classList.toggle('is-paused', v.paused);
@@ -158,20 +178,27 @@ function initDemoVideos() {
     syncPaused(); syncSound();
 
     const tryPlay = () => {
+      loadVideo();
       const p = v.play();
       if (p && p.catch) p.catch(() => slot.classList.add('is-paused'));
     };
 
-    // autoplay muted while in view; pause (and re-mute) when scrolled away
-    if (!reduced) {
-      const io = new IntersectionObserver((entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) { tryPlay(); }
-          else if (!v.paused) { v.pause(); v.muted = true; }
-        }
-      }, { threshold: 0.25 });
-      io.observe(slot);
-    }
+    // No source is attached until the video itself enters the viewport.
+    // Observing the video (not the tall service row) prevents early downloads.
+    const io = new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting && e.intersectionRatio > 0;
+      if (inView) {
+        loadVideo();
+        if (!reduced && !document.hidden && !navigator.connection?.saveData) tryPlay();
+      } else if (!modalOpen && document.fullscreenElement !== v) {
+        v.pause(); v.muted = true;
+      }
+    }, { threshold: [0, 0.05], rootMargin: '0px' });
+    io.observe(v);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { v.pause(); v.muted = true; }
+      else if (inView && !reduced && !navigator.connection?.saveData) tryPlay();
+    });
 
     // tap the video: play if paused, otherwise open fullscreen (sound stays on the buttons)
     const exitCleanup = () => {
@@ -338,7 +365,8 @@ function initCopyAddr() {
   });
 }
 
-initHero();
+if ('requestIdleCallback' in window) requestIdleCallback(() => initHero(), { timeout: 2000 });
+else setTimeout(initHero, 600);
 initReveals();
 initHeader();
 initCopyAddr();

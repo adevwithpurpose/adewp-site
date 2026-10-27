@@ -192,7 +192,7 @@ body.v5 .how-note::before { color: var(--accent-2); }
 
 /* v5.2: integrated demo players - muted autoplay, tap for sound */
 body.v5 .demo-note { margin: 0.9rem 0 0; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; letter-spacing: 0.04em; color: #8b99bd; }
-body.v5 .demo-video { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; background: #0b1220; cursor: pointer; opacity: 0; transition: opacity .5s ease; }
+body.v5 .demo-video { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; background: #0b1220; cursor: pointer; opacity: 1; transition: opacity .5s ease; }
 body.v5 .video-slot.is-ready .demo-video { opacity: 1; }
 body.v5 .demo-play, body.v5 .demo-sound { position: absolute; display: grid; place-items: center; border: 1px solid rgba(165,180,252,0.28); background: rgba(7,11,24,0.62); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); color: #cdd6f4; cursor: pointer; padding: 0; transition: transform .2s ease, background .2s ease, opacity .25s ease, border-color .2s ease; }
 body.v5 .demo-play { top: 0; left: 0; right: 0; bottom: 3.1rem; margin: auto; width: 64px; height: 64px; border-radius: 50%; opacity: 0; pointer-events: none; transform: scale(0.85); }
@@ -252,3 +252,11 @@ body.v5 .demo-modal-close {
 }
 body.v5 .demo-modal-close:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
 html.modal-open, html.modal-open body { overflow: hidden; }
+
+/* v5.4: resilient player states, visible poster before media arrives. */
+body.v5 .demo-expand, body.v5 .demo-sound { width: 44px; height: 44px; z-index: 2; }
+body.v5 .demo-expand { right: 3.9rem; }
+body.v5 .demo-expand svg { flex: none; width: 18px; height: 18px; max-width: 18px; max-height: 18px; }
+body.v5 .demo-status { position: absolute; left: .7rem; top: .7rem; max-width: calc(100% - 1.4rem); padding: .35rem .55rem; border-radius: 4px; background: #0b1220; color: #cdd6f4; font: 12px/1.4 Inter, sans-serif; pointer-events: none; }
+body.v5 .demo-status:empty { display: none; }
+body.v5 .demo-modal-close { width: 44px; height: 44px; }
