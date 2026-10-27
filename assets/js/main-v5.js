@@ -26,13 +26,15 @@ async function initHero() {
   renderer.setSize(mount.clientWidth, mount.clientHeight);
   mount.appendChild(renderer.domElement);
 
-  const N = 90;
+  const N = 120;
+  const aspect = mount.clientWidth / Math.max(1, mount.clientHeight);
+  const spreadX = 15 * Math.max(1, aspect * 0.85);
   const positions = new Float32Array(N * 3);
   const pts = [];
   for (let i = 0; i < N; i++) {
     const p = new THREE.Vector3(
-      (Math.random() - 0.5) * 26,
-      (Math.random() - 0.5) * 15,
+      (Math.random() - 0.5) * spreadX * 2,
+      (Math.random() - 0.5) * 17,
       (Math.random() - 0.5) * 8
     );
     pts.push(p);
@@ -171,10 +173,38 @@ function initDemoVideos() {
       io.observe(slot);
     }
 
-    // tap the video: play if paused, otherwise toggle sound
+    // tap the video: play if paused, otherwise open fullscreen (sound stays on the buttons)
+    const exitCleanup = () => {
+      v.controls = false;
+      v.muted = true;
+      slot.classList.remove('is-fullscreen');
+    };
+    const enterFullscreen = async () => {
+      if (v.requestFullscreen) {
+        try { await v.requestFullscreen(); }
+        catch (e) { v.muted = !v.muted; return; } // fullscreen refused: keep old tap-for-sound
+      } else if (v.webkitEnterFullscreen) { // iOS Safari native player
+        try { v.webkitEnterFullscreen(); } catch (e) { v.muted = !v.muted; return; }
+      } else { v.muted = !v.muted; return; }
+      slot.classList.add('is-fullscreen');
+      v.controls = true;
+      v.muted = false;
+      tryPlay();
+      // landscape where the platform supports it (Chrome/Android); elsewhere the viewer rotates
+      try {
+        if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+      } catch (e) { /* unsupported or refused - fine */ }
+    };
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement !== v && slot.classList.contains('is-fullscreen')) {
+        if (screen.orientation && screen.orientation.unlock) { try { screen.orientation.unlock(); } catch (e) {} }
+        exitCleanup();
+      }
+    });
+    v.addEventListener('webkitendfullscreen', exitCleanup);
     v.addEventListener('click', () => {
       if (v.paused) { tryPlay(); return; }
-      v.muted = !v.muted;
+      enterFullscreen();
     });
 
     // explicit controls: a blocked/paused start or the sound button = gesture, so sound on
@@ -185,7 +215,34 @@ function initDemoVideos() {
     };
     if (playBtn) playBtn.addEventListener('click', startWithSound);
     if (soundBtn) soundBtn.addEventListener('click', startWithSound);
+    const expandBtn = slot.querySelector('.demo-expand');
+    if (expandBtn) expandBtn.addEventListener('click', (e) => { e.stopPropagation(); if (v.paused) tryPlay(); enterFullscreen(); });
   });
+}
+
+/* ---------- easter egg: type "sudo" ---------- */
+function initSudoEgg() {
+  let buf = '';
+  let toast = null;
+  let timer = 0;
+  window.addEventListener('keydown', (e) => {
+    if (e.key && e.key.length === 1) {
+      buf = (buf + e.key.toLowerCase()).slice(-8);
+      if (buf.endsWith('sudo')) {
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.className = 'sudo-toast';
+          toast.setAttribute('role', 'status');
+          toast.textContent = 'permission granted - this page runs on vanilla JS, Three.js and one very patient developer';
+          document.body.appendChild(toast);
+        }
+        toast.classList.add('is-on');
+        clearTimeout(timer);
+        timer = setTimeout(() => toast.classList.remove('is-on'), 3600);
+        buf = '';
+      }
+    }
+  }, { passive: true });
 }
 
 /* ---------- copyable address ---------- */
@@ -212,3 +269,4 @@ initReveals();
 initHeader();
 initCopyAddr();
 initDemoVideos();
+initSudoEgg();
