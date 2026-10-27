@@ -236,3 +236,19 @@ body.v5 .sudo-toast {
   transition: opacity .3s ease, transform .3s ease; max-width: min(90vw, 30rem); text-align: center;
 }
 body.v5 .sudo-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+/* expanded demo modal (fallback when native fullscreen is unavailable) */
+body.v5 .demo-modal {
+  position: fixed; inset: 0; z-index: 120; display: flex; align-items: center; justify-content: center;
+  background: rgba(4,7,16,0.88); backdrop-filter: blur(6px); padding: 3.5rem 1rem 1.5rem;
+}
+body.v5 .demo-modal-stage { width: min(92vw, 70rem); }
+body.v5 .demo-modal-stage video { width: 100%; max-height: 82vh; border-radius: 12px; background: #000; }
+body.v5 .demo-modal .demo-video { opacity: 1; }
+body.v5 .demo-modal-close {
+  position: absolute; top: -2.9rem; right: 0; z-index: 121;
+  background: rgba(7,11,24,0.9); color: #cdd6f4; border: 1px solid rgba(165,180,252,0.4);
+  border-radius: 50%; width: 2.4rem; height: 2.4rem; font-size: 1.3rem; line-height: 1; cursor: pointer;
+}
+body.v5 .demo-modal-close:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 2px; }
+html.modal-open, html.modal-open body { overflow: hidden; }

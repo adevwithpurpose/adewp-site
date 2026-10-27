@@ -180,12 +180,14 @@ function initDemoVideos() {
       slot.classList.remove('is-fullscreen');
     };
     const enterFullscreen = async () => {
+      let native = false;
       if (v.requestFullscreen) {
-        try { await v.requestFullscreen(); }
-        catch (e) { v.muted = !v.muted; return; } // fullscreen refused: keep old tap-for-sound
+        try { await v.requestFullscreen(); native = true; }
+        catch (e) { native = false; } // refused (iframe policy, browser rules) - fall through to modal
       } else if (v.webkitEnterFullscreen) { // iOS Safari native player
-        try { v.webkitEnterFullscreen(); } catch (e) { v.muted = !v.muted; return; }
-      } else { v.muted = !v.muted; return; }
+        try { v.webkitEnterFullscreen(); native = true; } catch (e) { native = false; }
+      }
+      if (!native) { openExpanded(); return; } // larger view still delivered, inside the page
       slot.classList.add('is-fullscreen');
       v.controls = true;
       v.muted = false;
@@ -194,6 +196,69 @@ function initDemoVideos() {
       try {
         if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
       } catch (e) { /* unsupported or refused - fine */ }
+    };
+
+    // expanded modal: accessible larger view when native fullscreen is unavailable
+    let modalOpen = false;
+    const openExpanded = () => {
+      if (modalOpen) return;
+      modalOpen = true;
+      const prevFocus = document.activeElement;
+      const home = v.parentNode, next = v.nextSibling;
+      const overlay = document.createElement('div');
+      overlay.className = 'demo-modal';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', 'Expanded demo video');
+      const stage = document.createElement('div');
+      stage.className = 'demo-modal-stage';
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'demo-modal-close';
+      closeBtn.type = 'button';
+      closeBtn.setAttribute('aria-label', 'Close expanded video');
+      closeBtn.innerHTML = '&times;';
+      // anchor the modal to the video being expanded: File previews and some
+      // embeds give fixed elements a document-height viewport, so fixed
+      // centering can land off-screen; expanding in place is always visible
+      const before = v.getBoundingClientRect();
+      stage.appendChild(v);
+      stage.appendChild(closeBtn);
+      overlay.appendChild(stage);
+      overlay.style.position = 'absolute';
+      overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.top = '0';
+      const docTop = before.top + (window.scrollY || 0);
+      const viewH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      overlay.style.height = Math.max(docTop + before.height, (window.scrollY || 0) + viewH) + 240 + 'px';
+      stage.style.position = 'absolute';
+      stage.style.left = '50%';
+      stage.style.transform = 'translateX(-50%)';
+      document.body.appendChild(overlay);
+      const stageH = stage.getBoundingClientRect().height || before.height;
+      let stageTop = docTop + before.height / 2 - stageH / 2;
+      stageTop = Math.max(60, Math.min(stageTop, overlay.offsetHeight - stageH - 12));
+      stage.style.top = stageTop + 'px';
+      document.documentElement.classList.add('modal-open');
+      v.controls = true;
+      v.muted = false;
+      tryPlay();
+      closeBtn.focus();
+      const close = () => {
+        overlay.removeEventListener('click', onOverlayClick);
+        window.removeEventListener('keydown', onKey);
+        stage.removeChild(v);
+        home.insertBefore(v, next);
+        overlay.remove();
+        document.documentElement.classList.remove('modal-open');
+        v.controls = false;
+        v.muted = true;
+        modalOpen = false;
+        if (prevFocus && prevFocus.focus) try { prevFocus.focus(); } catch (e) {}
+      };
+      const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } };
+      const onOverlayClick = (e) => { if (e.target === overlay) close(); };
+      window.addEventListener('keydown', onKey);
+      overlay.addEventListener('click', onOverlayClick);
+      closeBtn.addEventListener('click', (e) => { e.stopPropagation(); close(); });
     };
     document.addEventListener('fullscreenchange', () => {
       if (document.fullscreenElement !== v && slot.classList.contains('is-fullscreen')) {
