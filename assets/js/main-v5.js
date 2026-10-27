@@ -434,7 +434,7 @@ function initBusywork() {
     cells.forEach((c, i) => { c.className = i < sysCells ? 'sys' : (i < busyCells ? 'busy' : ''); });
     countTo(year);
     const weeks = year / 40;
-    line.textContent = fmt(week) + ' hours a week across ' + people + (people === 1 ? ' person' : ' people') + ', about ' + (weeks >= 10 ? fmt(weeks) : weeks.toFixed(1)) + ' working weeks of 40 hours a year.';
+    line.textContent = (week >= 10 ? fmt(week) : week.toFixed(1)) + ' hours a week across ' + people + (people === 1 ? ' person' : ' people') + ', about ' + (weeks >= 10 ? fmt(weeks) : weeks.toFixed(1)) + ' working weeks of 40 hours a year.';
   };
   root.addEventListener('input', update);
   update();
