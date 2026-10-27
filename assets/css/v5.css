@@ -178,6 +178,8 @@ html.js body.v5 [data-reveal].is-in, html.js body.v5 [data-reveal-group] > *.is-
 
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
+  body.v5 .video-slot { aspect-ratio: 4 / 3.4; }
+  body.v5 .vignette { width: 100%; height: calc(100% - 1.7rem); margin-top: 1.5rem; }
   body.v5 .service, body.v5 .service-flip { grid-template-columns: 1fr; gap: 1.6rem; }
   body.v5 .service-flip .service-copy { order: 1; }
   body.v5 .service-flip .video-slot { order: 2; }
