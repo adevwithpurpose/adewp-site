@@ -149,22 +149,38 @@ function initDemoVideos() {
 
     let loaded = false;
     let inView = false;
-    const loadVideo = () => {
-      if (loaded) return;
-      loaded = true;
-      slot.classList.add('is-loading');
-      status.textContent = 'Loading demo…';
-      if (v.dataset.src) v.src = v.dataset.src;
-      v.load();
-    };
-    v.addEventListener('canplay', () => { slot.classList.add('is-ready'); slot.classList.remove('is-loading', 'is-error'); status.textContent = ''; });
+    let slowTimer = 0;
     const status = document.createElement('span');
     status.className = 'demo-status';
     status.setAttribute('role', 'status');
     slot.appendChild(status);
-    v.addEventListener('waiting', () => { slot.classList.add('is-loading'); status.textContent = 'Loading demo…'; });
-    v.addEventListener('playing', () => { slot.classList.remove('is-loading', 'is-error'); status.textContent = ''; });
-    v.addEventListener('error', () => { slot.classList.remove('is-loading'); slot.classList.add('is-error', 'is-paused'); status.textContent = 'Video unavailable. Tap play to retry.'; loaded = false; });
+    const clearStatus = () => {
+      clearTimeout(slowTimer); slowTimer = 0;
+      slot.classList.remove('is-loading');
+      status.textContent = '';
+    };
+    // Only say "loading" while playback is genuinely waiting for data, and say so honestly if it drags.
+    const showBuffering = () => {
+      if (v.paused || v.readyState >= 3) return;
+      slot.classList.add('is-loading');
+      status.textContent = 'Loading demo\u2026';
+      if (!slowTimer) slowTimer = setTimeout(() => {
+        slowTimer = 0;
+        if (!v.paused && v.readyState < 3) status.textContent = 'Slow connection. Still buffering\u2026';
+      }, 6000);
+    };
+    const loadVideo = () => {
+      if (loaded) return;
+      loaded = true;
+      v.preload = 'auto'; // the source only attaches in view, so fetch it fully (iOS ignores "none" until a gesture)
+      if (v.dataset.src) v.src = v.dataset.src;
+      v.load();
+    };
+    v.addEventListener('canplay', () => { slot.classList.add('is-ready'); slot.classList.remove('is-error'); clearStatus(); });
+    v.addEventListener('waiting', showBuffering);
+    v.addEventListener('playing', () => { slot.classList.remove('is-error'); clearStatus(); });
+    v.addEventListener('pause', clearStatus);
+    v.addEventListener('error', () => { clearStatus(); slot.classList.add('is-error', 'is-paused'); status.textContent = 'Video unavailable. Tap play to retry.'; loaded = false; });
     if (v.readyState >= 3) slot.classList.add('is-ready');
 
     const syncPaused = () => slot.classList.toggle('is-paused', v.paused);
@@ -180,7 +196,7 @@ function initDemoVideos() {
     const tryPlay = () => {
       loadVideo();
       const p = v.play();
-      if (p && p.catch) p.catch(() => slot.classList.add('is-paused'));
+      if (p && p.catch) p.catch(() => { slot.classList.add('is-paused'); clearStatus(); });
     };
 
     // No source is attached until the video itself enters the viewport.
