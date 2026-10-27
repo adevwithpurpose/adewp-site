@@ -397,6 +397,49 @@ function initCopyAddr() {
   });
 }
 
+/* ---------- busywork estimator: pure arithmetic on the visitor's own numbers ---------- */
+function initBusywork() {
+  const root = document.querySelector('[data-bw]');
+  if (!root) return;
+  const grid = root.querySelector('[data-grid]');
+  const cells = [];
+  for (let i = 0; i < 40; i++) { const s = document.createElement('span'); s.style.transitionDelay = reduced ? '0ms' : (i * 12) + 'ms'; grid.appendChild(s); cells.push(s); }
+  const val = (k) => Number(root.querySelector('[data-in="' + k + '"]').value);
+  const yearEl = root.querySelector('[data-num="year"]');
+  const line = root.querySelector('[data-line]');
+  let shown = 0, raf = 0;
+  const fmt = (n) => Math.round(n).toLocaleString('en-US');
+  const countTo = (target) => {
+    cancelAnimationFrame(raf);
+    if (reduced) { shown = target; yearEl.textContent = fmt(target); return; }
+    const from = shown, t0 = performance.now();
+    const step = (now) => {
+      const p = Math.min(1, (now - t0) / 500);
+      shown = from + (target - from) * (1 - Math.pow(1 - p, 3));
+      yearEl.textContent = fmt(shown);
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  };
+  const update = () => {
+    const people = val('people'), hours = val('hours'), share = val('share');
+    root.querySelector('[data-out="people"]').textContent = people;
+    root.querySelector('[data-out="hours"]').textContent = hours;
+    root.querySelector('[data-out="share"]').textContent = share + '%';
+    const back = hours * share / 100;           // hours per person per week
+    const week = back * people;                 // team hours per week
+    const year = week * 48;                     // 48 working weeks
+    const busyCells = Math.min(40, hours);
+    const sysCells = Math.min(busyCells, Math.round(busyCells * share / 100));
+    cells.forEach((c, i) => { c.className = i < sysCells ? 'sys' : (i < busyCells ? 'busy' : ''); });
+    countTo(year);
+    const weeks = year / 40;
+    line.textContent = fmt(week) + ' hours a week across ' + people + (people === 1 ? ' person' : ' people') + ', about ' + (weeks >= 10 ? fmt(weeks) : weeks.toFixed(1)) + ' working weeks of 40 hours a year.';
+  };
+  root.addEventListener('input', update);
+  update();
+}
+
 /* ---------- booking calendar: embedded only when the contact section nears view ---------- */
 function initCalEmbed() {
   const box = document.querySelector('[data-cal-embed]');
@@ -438,4 +481,5 @@ initHeader();
 initCopyAddr();
 initDemoVideos();
 initCalEmbed();
+initBusywork();
 initSudoEgg();

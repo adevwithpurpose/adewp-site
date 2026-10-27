@@ -19,8 +19,9 @@
   <link rel="preload" href="assets/fonts/inter-400.woff" as="font" type="font/woff" crossorigin>
   <link rel="preload" href="assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/styles.css?v=4">
-  <link rel="stylesheet" href="assets/css/v5.css?v=20261028-58">
+  <link rel="stylesheet" href="assets/css/v5.css?v=20261028-60">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"A Dev With Purpose","url":"https://adevwithpurpose.com/","description":"Dashboards, internal platforms, Slack bots and AI agent automation for founders and small teams.","email":"hello@adevwithpurpose.com","founder":{"@type":"Person","name":"Safeer Ahmad","jobTitle":"AI Developer"},"areaServed":"Worldwide","knowsAbout":["Dashboards and reporting","Internal platforms","Slack bots","AI agents and automation"],"sameAs":["https://www.youtube.com/@adevwithpurpose","https://x.com/adevwithpurpose","https://github.com/adevwithpurpose","https://www.linkedin.com/in/adevwithpurpose"]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What happens on a Hello with a Dev call?","acceptedAnswer":{"@type":"Answer","text":"It is a free 30-minute chat. You tell me what your team does by hand and where the data lives, and we work out whether it is worth building and what the first step would be."}},{"@type":"Question","name":"What should I bring?","acceptedAnswer":{"@type":"Answer","text":"Nothing formal. A rough list of the manual tasks, the tools involved (ads, store, sheets, Slack) and who reads the result is enough."}},{"@type":"Question","name":"How does a project run?","acceptedAnswer":{"@type":"Answer","text":"We agree the outcome and the first step, I build in small steps with a demo after each one, and you get the system, the docs, the tests and a walkthrough at handover."}},{"@type":"Question","name":"Which tools can you connect to?","acceptedAnswer":{"@type":"Answer","text":"The demos use Meta Ads, Google Ads, Google Analytics, store data, sheets and Slack. If your tool has an API or can export data it is usually a candidate, and I will tell you plainly if it is not."}},{"@type":"Question","name":"Can I see real client work?","acceptedAnswer":{"@type":"Answer","text":"Client work stays private. What I can show is the public repos, this site and the demo videos, which use synthetic data and invented example clients."}},{"@type":"Question","name":"What does it cost?","acceptedAnswer":{"@type":"Answer","text":"It depends on scope, and I would rather quote against a real scope than guess here. The first call is free and it is where we size it."}},{"@type":"Question","name":"When can we talk?","acceptedAnswer":{"@type":"Answer","text":"Booking slots run Monday to Saturday, 10:00 to 18:00 Pakistan time (UTC+5), and you see them in your own time zone. If nothing fits, email me and we will find a time."}}]}</script>
 </head>
 <body class="v5">
 <a class="skip-link" href="#services">Skip to content</a>
@@ -33,6 +34,7 @@
       <a href="#proof">Proof</a>
       <a href="#process">Process</a>
       <a href="#about">About</a>
+      <a href="#faq">FAQ</a>
       <a href="#contact">Contact</a>
     </nav>
     <a class="header-cta" href="#contact">Book a call</a>
@@ -153,7 +155,30 @@
     </div>
   </section>
 
-  <!-- PROOF -->
+    <!-- BUSYWORK ESTIMATOR -->
+  <section class="busywork wrap" id="busywork">
+    <h2 class="section-title" data-reveal>What is the busywork costing you?</h2>
+    <p class="bw-sub" data-reveal>Move the sliders. It is your own arithmetic, run in your browser, and nothing is sent anywhere.</p>
+    <div class="bw-card" data-bw data-reveal>
+      <div class="bw-controls">
+        <label class="bw-field"><span>People doing it <b data-out="people">3</b></span><input type="range" min="1" max="30" value="3" data-in="people" aria-label="People doing the repetitive work"></label>
+        <label class="bw-field"><span>Hours each, per week <b data-out="hours">6</b></span><input type="range" min="1" max="20" value="6" data-in="hours" aria-label="Hours of repetitive work per person per week"></label>
+        <label class="bw-field"><span>Share a system could take <b data-out="share">60%</b></span><input type="range" min="10" max="90" step="5" value="60" data-in="share" aria-label="Share of that work a system could take over"></label>
+      </div>
+      <div class="bw-visual" aria-hidden="true">
+        <p class="bw-cap">One person's 40-hour week</p>
+        <div class="bw-grid" data-grid></div>
+        <p class="bw-legend"><i class="k-free"></i>Everything else <i class="k-busy"></i>Busywork <i class="k-sys"></i>Handed to a system</p>
+      </div>
+      <div class="bw-result" aria-live="polite">
+        <p class="bw-big"><span data-num="year">0</span><small>hours a year back</small></p>
+        <p class="bw-line" data-line></p>
+      </div>
+      <p class="bw-foot">An estimate from your numbers over 48 working weeks, not a promise. The Hello with a Dev call is where we check it against your real tools. <a href="#contact">Book it</a></p>
+    </div>
+  </section>
+
+<!-- PROOF -->
   <section class="proof wrap" id="proof">
     <h2 class="section-title" data-reveal>Proof you can open right now</h2>
     <p class="section-sub" data-reveal>Client work stays private. Here are a few public projects you can explore.</p>
@@ -212,6 +237,20 @@
   </section>
 
   <!-- CONTACT -->
+  <!-- FAQ -->
+  <section class="faq wrap" id="faq">
+    <h2 class="section-title" data-reveal>Questions before you book</h2>
+    <div class="faq-list" data-reveal-group>
+      <details class="faq-item"><summary>What happens on a Hello with a Dev call?</summary><p>It is a free 30-minute chat. You tell me what your team does by hand and where the data lives, and we work out whether it is worth building and what the first step would be.</p></details>
+      <details class="faq-item"><summary>What should I bring?</summary><p>Nothing formal. A rough list of the manual tasks, the tools involved (ads, store, sheets, Slack) and who reads the result is enough.</p></details>
+      <details class="faq-item"><summary>How does a project run?</summary><p>We agree the outcome and the first step, I build in small steps with a demo after each one, and you get the system, the docs, the tests and a walkthrough at handover.</p></details>
+      <details class="faq-item"><summary>Which tools can you connect to?</summary><p>The demos use Meta Ads, Google Ads, Google Analytics, store data, sheets and Slack. If your tool has an API or can export data it is usually a candidate, and I will tell you plainly if it is not.</p></details>
+      <details class="faq-item"><summary>Can I see real client work?</summary><p>Client work stays private. What I can show is the public repos, this site and the demo videos, which use synthetic data and invented example clients.</p></details>
+      <details class="faq-item"><summary>What does it cost?</summary><p>It depends on scope, and I would rather quote against a real scope than guess here. The first call is free and it is where we size it.</p></details>
+      <details class="faq-item"><summary>When can we talk?</summary><p>Booking slots run Monday to Saturday, 10:00 to 18:00 Pakistan time (UTC+5), and you see them in your own time zone. If nothing fits, email me and we will find a time.</p></details>
+    </div>
+  </section>
+
   <section class="contact wrap" id="contact">
     <div data-reveal-group>
       <h2 class="section-title">Tell me what you need built.</h2>
@@ -243,6 +282,6 @@
   </div>
 </footer>
 
-<script type="module" src="assets/js/main-v5.js?v=20261028-58"></script>
+<script type="module" src="assets/js/main-v5.js?v=20261028-60"></script>
 </body>
 </html>
