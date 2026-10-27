@@ -131,6 +131,36 @@ function initHeader() {
   set();
 }
 
+/* ---------- demo vignettes: live motion while in view ---------- */
+function initVignettes() {
+  const slots = document.querySelectorAll('.video-slot');
+  if (!slots.length || reduced) return; /* reduced-motion: base markup is the final static frame */
+  const fmt = new Intl.NumberFormat('en-US');
+  const runCounts = (slot) => {
+    slot.querySelectorAll('.vg-num[data-count]').forEach((el) => {
+      if (el.dataset.done) return;
+      el.dataset.done = '1';
+      const target = parseInt(el.dataset.count, 10) || 0;
+      const t0 = performance.now();
+      const dur = 1400;
+      const step = (t) => {
+        const p = Math.min(1, (t - t0) / dur);
+        el.textContent = fmt.format(Math.round(target * (1 - Math.pow(1 - p, 3)))) + (el.dataset.suffix || '');
+        if (p < 1) requestAnimationFrame(step);
+      };
+      el.textContent = fmt.format(0) + (el.dataset.suffix || '');
+      requestAnimationFrame(step);
+    });
+  };
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      e.target.classList.toggle('vg-live', e.isIntersecting);
+      if (e.isIntersecting) runCounts(e.target);
+    }
+  }, { threshold: 0.3 });
+  slots.forEach((slot) => io.observe(slot));
+}
+
 /* ---------- copyable address ---------- */
 function initCopyAddr() {
   document.querySelectorAll('.copy-addr').forEach((btn) => {
@@ -154,3 +184,4 @@ initHero();
 initReveals();
 initHeader();
 initCopyAddr();
+initVignettes();
