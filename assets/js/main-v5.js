@@ -227,16 +227,25 @@ function initDemoVideos() {
       overlay.style.position = 'absolute';
       overlay.style.left = '0'; overlay.style.right = '0'; overlay.style.top = '0';
       const docTop = before.top + (window.scrollY || 0);
+      const scrollY = window.scrollY || 0;
       const viewH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      overlay.style.height = Math.max(docTop + before.height, (window.scrollY || 0) + viewH) + 240 + 'px';
+      const saneViewport = viewH < 2500; // File-preview iframes report document-height viewports
+      overlay.style.height = Math.max(docTop + before.height, scrollY + viewH) + 240 + 'px';
       stage.style.position = 'absolute';
       stage.style.left = '50%';
       stage.style.transform = 'translateX(-50%)';
+      // fit the expanded video inside the visible window on normal viewports
+      const fitW = saneViewport ? Math.min(window.innerWidth * 0.92, 1120, (viewH - 140) * 16 / 9) : Math.min(window.innerWidth * 0.92, 1120);
+      stage.style.width = Math.max(280, Math.round(fitW)) + 'px';
       document.body.appendChild(overlay);
       const stageH = stage.getBoundingClientRect().height || before.height;
       let stageTop = docTop + before.height / 2 - stageH / 2;
-      stageTop = Math.max(60, Math.min(stageTop, overlay.offsetHeight - stageH - 12));
-      stage.style.top = stageTop + 'px';
+      if (saneViewport) {
+        stageTop = Math.max(scrollY + 56, Math.min(stageTop, scrollY + viewH - stageH - 16));
+      } else {
+        stageTop = Math.max(60, Math.min(stageTop, overlay.offsetHeight - stageH - 12));
+      }
+      stage.style.top = Math.round(stageTop) + 'px';
       document.documentElement.classList.add('modal-open');
       v.controls = true;
       v.muted = false;
