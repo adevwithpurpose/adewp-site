@@ -397,10 +397,45 @@ function initCopyAddr() {
   });
 }
 
+/* ---------- booking calendar: embedded only when the contact section nears view ---------- */
+function initCalEmbed() {
+  const box = document.querySelector('[data-cal-embed]');
+  if (!box) return;
+  const note = box.querySelector('.cal-embed-note');
+  let started = false;
+  const start = () => {
+    if (started) return;
+    started = true;
+    const f = document.createElement('iframe');
+    f.className = 'cal-frame';
+    f.title = 'Book a Hello with a Dev - booking calendar';
+    f.setAttribute('loading', 'lazy');
+    f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    let done = false;
+    const fail = () => {
+      if (done) return;
+      note.innerHTML = 'The calendar did not load here. <a href="https://cal.com/adevwithpurpose/hello-with-a-dev" target="_blank" rel="noopener">Open it in a new tab</a>.';
+      note.hidden = false;
+    };
+    f.addEventListener('load', () => { done = true; box.classList.add('is-loaded'); note.hidden = true; });
+    f.addEventListener('error', fail);
+    setTimeout(fail, 15000);
+    note.textContent = 'Loading the calendar\u2026';
+    f.src = box.dataset.calSrc;
+    box.appendChild(f);
+  };
+  if (!('IntersectionObserver' in window)) return; // direct link stays as the fallback
+  const io = new IntersectionObserver((es) => {
+    if (es.some((e) => e.isIntersecting)) { io.disconnect(); start(); }
+  }, { rootMargin: '0px 0px 500px 0px' });
+  io.observe(box);
+}
+
 if ('requestIdleCallback' in window) requestIdleCallback(() => initHero(), { timeout: 2000 });
 else setTimeout(initHero, 600);
 initReveals();
 initHeader();
 initCopyAddr();
 initDemoVideos();
+initCalEmbed();
 initSudoEgg();
