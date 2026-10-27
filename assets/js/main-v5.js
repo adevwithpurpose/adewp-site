@@ -179,7 +179,7 @@ function initDemoVideos() {
     v.addEventListener('canplay', () => { slot.classList.add('is-ready'); slot.classList.remove('is-error'); clearStatus(); });
     v.addEventListener('waiting', showBuffering);
     v.addEventListener('playing', () => { slot.classList.remove('is-error'); clearStatus(); });
-    v.addEventListener('pause', clearStatus);
+    v.addEventListener('pause', () => { if (!slot.classList.contains('is-error')) clearStatus(); });
     v.addEventListener('error', () => { clearStatus(); slot.classList.add('is-error', 'is-paused'); status.textContent = 'Video unavailable. Tap play to retry.'; loaded = false; });
     if (v.readyState >= 3) slot.classList.add('is-ready');
 
@@ -193,10 +193,25 @@ function initDemoVideos() {
     v.addEventListener('volumechange', syncSound);
     syncPaused(); syncSound();
 
+    // Scrolled past a video that is still downloading: abort it so it cannot compete for
+    // bandwidth with the video now on screen. Fully buffered videos are kept.
+    const releaseIfPartial = () => {
+      if (!loaded || !v.dataset.src || !v.src) return;
+      const b = v.buffered;
+      const done = b.length && isFinite(v.duration) && b.end(b.length - 1) >= v.duration - 0.5;
+      if (done) return;
+      v.removeAttribute('src');
+      v.load();
+      loaded = false;
+      clearStatus();
+      slot.classList.remove('is-ready');
+      slot.classList.add('is-paused');
+    };
+
     const tryPlay = () => {
       loadVideo();
       const p = v.play();
-      if (p && p.catch) p.catch(() => { slot.classList.add('is-paused'); clearStatus(); });
+      if (p && p.catch) p.catch(() => { slot.classList.add('is-paused'); if (!slot.classList.contains('is-error')) clearStatus(); });
     };
 
     // No source is attached until the video itself enters the viewport.
@@ -208,6 +223,7 @@ function initDemoVideos() {
         if (!reduced && !document.hidden && !navigator.connection?.saveData) tryPlay();
       } else if (!modalOpen && document.fullscreenElement !== v) {
         v.pause(); v.muted = true;
+        releaseIfPartial();
       }
     }, { threshold: [0, 0.05], rootMargin: '0px' });
     io.observe(v);
