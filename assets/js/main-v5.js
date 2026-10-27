@@ -1,6 +1,7 @@
 /* A Dev With Purpose - v5 motion bootstrap (ES module).
    Lean: Three.js hero constellation (desktop, motion-allowed) + IO reveals +
-   header state + copy-address. No GSAP. Static page fully readable without JS. */
+   header state + copy-address + integrated demo players (muted autoplay in view, tap for sound).
+   No GSAP. Static page fully readable without JS. */
 
 document.documentElement.classList.add('js');
 
@@ -131,34 +132,60 @@ function initHeader() {
   set();
 }
 
-/* ---------- demo vignettes: live motion while in view ---------- */
-function initVignettes() {
-  const slots = document.querySelectorAll('.video-slot');
-  if (!slots.length || reduced) return; /* reduced-motion: base markup is the final static frame */
-  const fmt = new Intl.NumberFormat('en-US');
-  const runCounts = (slot) => {
-    slot.querySelectorAll('.vg-num[data-count]').forEach((el) => {
-      if (el.dataset.done) return;
-      el.dataset.done = '1';
-      const target = parseInt(el.dataset.count, 10) || 0;
-      const t0 = performance.now();
-      const dur = 1400;
-      const step = (t) => {
-        const p = Math.min(1, (t - t0) / dur);
-        el.textContent = fmt.format(Math.round(target * (1 - Math.pow(1 - p, 3)))) + (el.dataset.suffix || '');
-        if (p < 1) requestAnimationFrame(step);
-      };
-      el.textContent = fmt.format(0) + (el.dataset.suffix || '');
-      requestAnimationFrame(step);
-    });
-  };
-  const io = new IntersectionObserver((entries) => {
-    for (const e of entries) {
-      e.target.classList.toggle('vg-live', e.isIntersecting);
-      if (e.isIntersecting) runCounts(e.target);
+/* ---------- demo videos: muted autoplay in view, tap for sound ---------- */
+function initDemoVideos() {
+  const slots = document.querySelectorAll('[data-demo]');
+  if (!slots.length) return;
+  slots.forEach((slot) => {
+    const v = slot.querySelector('video');
+    if (!v) return;
+    const soundBtn = slot.querySelector('.demo-sound');
+    const playBtn = slot.querySelector('.demo-play');
+
+    v.addEventListener('canplay', () => slot.classList.add('is-ready'), { once: true });
+    if (v.readyState >= 3) slot.classList.add('is-ready');
+
+    const syncPaused = () => slot.classList.toggle('is-paused', v.paused);
+    const syncSound = () => {
+      slot.classList.toggle('is-sound', !v.muted);
+      if (soundBtn) soundBtn.setAttribute('aria-pressed', String(!v.muted));
+    };
+    v.addEventListener('play', syncPaused);
+    v.addEventListener('pause', syncPaused);
+    v.addEventListener('volumechange', syncSound);
+    syncPaused(); syncSound();
+
+    const tryPlay = () => {
+      const p = v.play();
+      if (p && p.catch) p.catch(() => slot.classList.add('is-paused'));
+    };
+
+    // autoplay muted while in view; pause (and re-mute) when scrolled away
+    if (!reduced) {
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) { tryPlay(); }
+          else if (!v.paused) { v.pause(); v.muted = true; }
+        }
+      }, { threshold: 0.25 });
+      io.observe(slot);
     }
-  }, { threshold: 0.3 });
-  slots.forEach((slot) => io.observe(slot));
+
+    // tap the video: play if paused, otherwise toggle sound
+    v.addEventListener('click', () => {
+      if (v.paused) { tryPlay(); return; }
+      v.muted = !v.muted;
+    });
+
+    // explicit controls: a blocked/paused start or the sound button = gesture, so sound on
+    const startWithSound = (e) => {
+      e.stopPropagation();
+      if (v.paused) { v.muted = false; tryPlay(); }
+      else { v.muted = !v.muted; }
+    };
+    if (playBtn) playBtn.addEventListener('click', startWithSound);
+    if (soundBtn) soundBtn.addEventListener('click', startWithSound);
+  });
 }
 
 /* ---------- copyable address ---------- */
@@ -184,4 +211,4 @@ initHero();
 initReveals();
 initHeader();
 initCopyAddr();
-initVignettes();
+initDemoVideos();

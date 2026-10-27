@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css?v=4">
-  <link rel="stylesheet" href="assets/css/v5.css?v=5">
+  <link rel="stylesheet" href="assets/css/v5.css?v=6">
 </head>
 <body class="v5">
 
@@ -64,6 +64,7 @@
   <!-- SERVICES -->
   <section class="services wrap" id="services">
     <h2 class="section-title" data-reveal>What I build</h2>
+    <p class="demo-note" data-reveal>Short narrated demos &middot; synthetic data, invented example clients &middot; tap a video for sound</p>
 
     <div class="service" data-reveal>
       <div class="service-copy">
@@ -77,10 +78,11 @@
         </ul>
         <p class="service-meta"><b>Sources:</b> Meta Ads, Google Ads, Google Analytics, your store or sheets &middot; <b>Metrics:</b> ad spend, revenue, ROAS, ROI, AOV, conversion rate &middot; <b>Delivery:</b> live dashboard or a scheduled post to Slack</p>
       </div>
-      <div class="video-slot">
-        <span class="video-flag">demo &middot; synthetic data</span>
-        <video class="demo-video" data-key="northwind" controls playsinline preload="none" poster="assets/videos/northwind-poster.jpg" src="assets/videos/northwind.mp4"></video>
-        <span class="video-label"><strong>Northwind Outdoor Co.</strong>ad spend + sales dashboard &middot; 63s narrated walkthrough &middot; invented example client</span>
+      <div class="video-slot" data-demo>
+        <video class="demo-video" data-key="northwind" autoplay muted loop playsinline preload="metadata" poster="assets/videos/northwind-poster.jpg" src="assets/videos/northwind.mp4" aria-label="Narrated demo walkthrough: ad spend and sales dashboard"></video>
+        <button class="demo-play" type="button" aria-label="Play demo with sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.4v13.2c0 .8.9 1.3 1.6.9l10.2-6.6c.6-.4.6-1.4 0-1.8L9.6 4.5c-.7-.4-1.6.1-1.6.9z"/></svg></button>
+        <button class="demo-sound" type="button" aria-pressed="false" aria-label="Toggle sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5c0 .3.2.5.5.5h3l4.2 3.8c.4.4 1.1.1 1.1-.5V5.7c0-.6-.7-.9-1.1-.5L7.5 9h-3c-.3 0-.5.2-.5.5z"/><path class="w1" d="M16.2 9.2c1 .8 1.6 1.7 1.6 2.8s-.6 2-1.6 2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="w2" d="M18.4 6.8c1.7 1.3 2.7 3 2.7 5.2s-1 3.9-2.7 5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line class="mx" x1="15.5" y1="9" x2="21" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line class="mx" x1="21" y1="9" x2="15.5" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        <span class="video-label"><strong>Northwind Outdoor Co.</strong>ad spend + sales dashboard &middot; 63s narrated walkthrough</span>
       </div>
     </div>
 
@@ -95,10 +97,11 @@
         </ul>
         <p class="service-meta"><b>Fits around:</b> your docs, sheets, inbox and chat &middot; <b>Tracks:</b> turnaround time, approvals, workload, on-time rate &middot; <b>Add-ons:</b> Slack notifications where the team already reads</p>
       </div>
-      <div class="video-slot">
-        <span class="video-flag">demo &middot; synthetic data</span>
-        <video class="demo-video" data-key="harbor" controls playsinline preload="none" poster="assets/videos/harbor-poster.jpg" src="assets/videos/harbor.mp4"></video>
-        <span class="video-label"><strong>Harbor &amp; Co. Logistics</strong>internal ops workspace &middot; 60s narrated walkthrough &middot; invented example client</span>
+      <div class="video-slot" data-demo>
+        <video class="demo-video" data-key="harbor" autoplay muted loop playsinline preload="metadata" poster="assets/videos/harbor-poster.jpg" src="assets/videos/harbor.mp4" aria-label="Narrated demo walkthrough: internal operations workspace"></video>
+        <button class="demo-play" type="button" aria-label="Play demo with sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.4v13.2c0 .8.9 1.3 1.6.9l10.2-6.6c.6-.4.6-1.4 0-1.8L9.6 4.5c-.7-.4-1.6.1-1.6.9z"/></svg></button>
+        <button class="demo-sound" type="button" aria-pressed="false" aria-label="Toggle sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5c0 .3.2.5.5.5h3l4.2 3.8c.4.4 1.1.1 1.1-.5V5.7c0-.6-.7-.9-1.1-.5L7.5 9h-3c-.3 0-.5.2-.5.5z"/><path class="w1" d="M16.2 9.2c1 .8 1.6 1.7 1.6 2.8s-.6 2-1.6 2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="w2" d="M18.4 6.8c1.7 1.3 2.7 3 2.7 5.2s-1 3.9-2.7 5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line class="mx" x1="15.5" y1="9" x2="21" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line class="mx" x1="21" y1="9" x2="15.5" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        <span class="video-label"><strong>Harbor &amp; Co. Logistics</strong>internal ops workspace &middot; 60s narrated walkthrough</span>
       </div>
     </div>
 
@@ -114,10 +117,11 @@
         </ul>
         <p class="service-meta"><b>Lives in:</b> Slack &middot; <b>Reads:</b> Meta Ads, Google Analytics, Google Ads, your store or sheets &middot; <b>Metrics:</b> daily sales, ad spend, ROAS, AOV, anything on your watch list</p>
       </div>
-      <div class="video-slot">
-        <span class="video-flag">demo &middot; synthetic data</span>
-        <video class="demo-video" data-key="fernwood" controls playsinline preload="none" poster="assets/videos/fernwood-poster.jpg" src="assets/videos/fernwood.mp4"></video>
-        <span class="video-label"><strong>Fernwood Studio</strong>Slack morning brief &middot; 57s narrated walkthrough &middot; invented example client</span>
+      <div class="video-slot" data-demo>
+        <video class="demo-video" data-key="fernwood" autoplay muted loop playsinline preload="metadata" poster="assets/videos/fernwood-poster.jpg" src="assets/videos/fernwood.mp4" aria-label="Narrated demo walkthrough: Slack morning brief"></video>
+        <button class="demo-play" type="button" aria-label="Play demo with sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.4v13.2c0 .8.9 1.3 1.6.9l10.2-6.6c.6-.4.6-1.4 0-1.8L9.6 4.5c-.7-.4-1.6.1-1.6.9z"/></svg></button>
+        <button class="demo-sound" type="button" aria-pressed="false" aria-label="Toggle sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5c0 .3.2.5.5.5h3l4.2 3.8c.4.4 1.1.1 1.1-.5V5.7c0-.6-.7-.9-1.1-.5L7.5 9h-3c-.3 0-.5.2-.5.5z"/><path class="w1" d="M16.2 9.2c1 .8 1.6 1.7 1.6 2.8s-.6 2-1.6 2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="w2" d="M18.4 6.8c1.7 1.3 2.7 3 2.7 5.2s-1 3.9-2.7 5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line class="mx" x1="15.5" y1="9" x2="21" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line class="mx" x1="21" y1="9" x2="15.5" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        <span class="video-label"><strong>Fernwood Studio</strong>Slack morning brief &middot; 57s narrated walkthrough</span>
       </div>
     </div>
 
@@ -133,10 +137,11 @@
         </ul>
         <p class="service-meta"><b>Connects:</b> sheets, Slack, your shop or ops tools &middot; <b>Handles:</b> collecting, checking, drafting, filing &middot; <b>Metrics:</b> weekly totals, error rates, on-time dispatch, stock levels &middot; <b>Guardrail:</b> a review step before anything goes out</p>
       </div>
-      <div class="video-slot">
-        <span class="video-flag">demo &middot; synthetic data</span>
-        <video class="demo-video" data-key="atlas" controls playsinline preload="none" poster="assets/videos/atlas-poster.jpg" src="assets/videos/atlas.mp4"></video>
-        <span class="video-label"><strong>Atlas Print Works</strong>ops automation &middot; 63s narrated walkthrough &middot; invented example client</span>
+      <div class="video-slot" data-demo>
+        <video class="demo-video" data-key="atlas" autoplay muted loop playsinline preload="metadata" poster="assets/videos/atlas-poster.jpg" src="assets/videos/atlas.mp4" aria-label="Narrated demo walkthrough: operations automation"></video>
+        <button class="demo-play" type="button" aria-label="Play demo with sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.4v13.2c0 .8.9 1.3 1.6.9l10.2-6.6c.6-.4.6-1.4 0-1.8L9.6 4.5c-.7-.4-1.6.1-1.6.9z"/></svg></button>
+        <button class="demo-sound" type="button" aria-pressed="false" aria-label="Toggle sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5c0 .3.2.5.5.5h3l4.2 3.8c.4.4 1.1.1 1.1-.5V5.7c0-.6-.7-.9-1.1-.5L7.5 9h-3c-.3 0-.5.2-.5.5z"/><path class="w1" d="M16.2 9.2c1 .8 1.6 1.7 1.6 2.8s-.6 2-1.6 2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="w2" d="M18.4 6.8c1.7 1.3 2.7 3 2.7 5.2s-1 3.9-2.7 5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line class="mx" x1="15.5" y1="9" x2="21" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line class="mx" x1="21" y1="9" x2="15.5" y2="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        <span class="video-label"><strong>Atlas Print Works</strong>ops automation &middot; 63s narrated walkthrough</span>
       </div>
     </div>
   </section>
@@ -221,6 +226,6 @@
   </div>
 </footer>
 
-<script type="module" src="assets/js/main-v5.js"></script>
+<script type="module" src="assets/js/main-v5.js?v=2"></script>
 </body>
 </html>
