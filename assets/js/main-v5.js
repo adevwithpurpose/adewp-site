@@ -461,7 +461,7 @@ function initCalEmbed() {
     note.innerHTML = 'The booking calendar could not load in this browser. <a class="btn btn-primary cal-fallback-btn" href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a>';
   };
   const onMessage = (e) => {
-    if (e.origin !== 'https://cal.com' || !frame || e.source !== frame.contentWindow) return;
+    if ((e.origin !== 'https://app.cal.com' && e.origin !== 'https://cal.com') || !frame || e.source !== frame.contentWindow) return;
     const d = e.data;
     if (!d || d.originator !== 'CAL') return;
     if (d.type === 'availabilityLoaded' || d.type === 'slotsFetched' || d.type === 'navigatedToBooker') {
@@ -480,19 +480,16 @@ function initCalEmbed() {
     note.hidden = false;
     note.textContent = 'Loading the calendar\u2026';
     window.addEventListener('message', onMessage);
-    // a blocked or unreachable cal.com rejects here (content blocker, DNS block, offline)
-    fetch(BOOK, { mode: 'no-cors', cache: 'no-store' }).then(() => {
-      if (failed) return;
-      frame = document.createElement('iframe');
-      frame.className = 'cal-frame';
-      frame.title = 'Book a Hello with a Dev - booking calendar';
-      frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-      frame.src = box.dataset.calSrc;
-      box.appendChild(frame);
-      timer = setTimeout(fail, 14000);
-    }, fail);
+    // official embed route (app.cal.com/.../embed); no preflight, readiness is the Cal message alone
+    frame = document.createElement('iframe');
+    frame.className = 'cal-frame';
+    frame.title = 'Book a Hello with a Dev - booking calendar';
+    frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    frame.src = box.dataset.calSrc;
+    box.appendChild(frame);
+    timer = setTimeout(fail, 20000);
   };
-  if (!('IntersectionObserver' in window) || !window.fetch) { fail(); return; }
+  if (!('IntersectionObserver' in window)) { fail(); return; }
   const io = new IntersectionObserver((es) => {
     if (es.some((e) => e.isIntersecting)) { io.disconnect(); start(); }
   }, { rootMargin: '0px 0px 500px 0px' });
