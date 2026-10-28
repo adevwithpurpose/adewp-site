@@ -449,37 +449,38 @@ function initCalEmbed() {
   if (!box) return;
   const note = box.querySelector('.cal-embed-note');
   const BOOK = 'https://cal.com/adevwithpurpose/hello-with-a-dev';
-  let started = false, ready = false, failed = false, frame = null, timer = 0;
+  let started = false, ready = false, failed = false, frame = null, timer = 0, slowNote = 0;
   const fail = () => {
     if (ready || failed) return;
     failed = true;
-    clearTimeout(timer);
+    clearTimeout(timer); clearTimeout(slowNote);
     box.querySelectorAll('.cal-host').forEach((n) => n.remove()); frame = null;
     box.classList.remove('is-loading');
     box.classList.add('is-failed');
     note.hidden = false;
     note.innerHTML = 'The booking calendar could not load in this browser. <a class="btn btn-primary cal-fallback-btn" href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a>';
   };
+  const markReady = () => {
+    if (ready || failed) return;
+    ready = true;
+    clearTimeout(timer); clearTimeout(slowNote);
+    box.classList.remove('is-loading');
+    box.classList.add('is-ready', 'is-loaded');
+    note.hidden = true;
+  };
   const onMessage = (e) => {
     frame = box.querySelector('iframe');
     if ((e.origin !== 'https://app.cal.com' && e.origin !== 'https://cal.com') || !frame || e.source !== frame.contentWindow) return;
     const d = e.data;
     if (!d || d.originator !== 'CAL') return;
-    if (d.type === 'availabilityLoaded' || d.type === 'slotsFetched' || d.type === 'navigatedToBooker') {
-      if (ready || failed) return;
-      ready = true;
-      clearTimeout(timer);
-      box.classList.remove('is-loading');
-      box.classList.add('is-ready', 'is-loaded');
-      note.hidden = true;
-    }
+    if (d.type === 'availabilityLoaded' || d.type === 'slotsFetched' || d.type === 'navigatedToBooker') markReady();
   };
   const start = () => {
     if (started) return;
     started = true;
     box.classList.add('is-loading');
     note.hidden = false;
-    note.textContent = 'Loading the calendar\u2026';
+    note.innerHTML = 'Loading the calendar\u2026 <a href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a> instead.';
     window.addEventListener('message', onMessage);
     // Cal's official inline embed (embed.js from app.cal.com). Readiness is the Cal message alone.
     const host = document.createElement('div');
@@ -502,7 +503,13 @@ function initCalEmbed() {
     w.Cal('init', { origin: 'https://app.cal.com' });
     w.Cal('inline', { elementOrSelector: host, calLink: 'adevwithpurpose/hello-with-a-dev', layout: 'month_view', config: { theme: 'dark' } });
     w.Cal('ui', { theme: 'dark', layout: 'month_view' });
-    timer = setTimeout(fail, 20000);
+    // official Cal embed events: linkReady / linkFailed (cal.com/help/embedding/embed-events)
+    w.Cal('on', { action: 'linkReady', callback: markReady });
+    w.Cal('on', { action: 'linkFailed', callback: fail });
+    // The booker is a heavy app (about 80 requests). On a slow connection it can take well over
+    // 20s, so do not give up early: say it is slow, keep loading, and only give up after 90s.
+    slowNote = setTimeout(() => { if (!ready && !failed) note.innerHTML = 'Still loading on a slow connection\u2026 <a href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a> instead.'; }, 12000);
+    timer = setTimeout(fail, 90000);
   };
   if (!('IntersectionObserver' in window)) { fail(); return; }
   const io = new IntersectionObserver((es) => {
