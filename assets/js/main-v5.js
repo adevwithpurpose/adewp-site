@@ -476,7 +476,7 @@ function initCalEmbed() {
     box.classList.remove('is-loading');
     box.classList.add('is-failed');
     note.hidden = false;
-    note.innerHTML = 'The booking calendar could not load in this browser. <a class="btn btn-primary cal-fallback-btn" href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a>';
+    note.innerHTML = '<span class="cal-fail-msg">The booking calendar could not load in this browser.</span><a class="btn btn-primary cal-fallback-btn" href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a>';
   };
   const markReady = () => {
     if (ready || failed) return;
