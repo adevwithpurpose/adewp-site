@@ -454,13 +454,14 @@ function initCalEmbed() {
     if (ready || failed) return;
     failed = true;
     clearTimeout(timer);
-    if (frame) { frame.remove(); frame = null; }
+    box.querySelectorAll('.cal-host').forEach((n) => n.remove()); frame = null;
     box.classList.remove('is-loading');
     box.classList.add('is-failed');
     note.hidden = false;
     note.innerHTML = 'The booking calendar could not load in this browser. <a class="btn btn-primary cal-fallback-btn" href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a>';
   };
   const onMessage = (e) => {
+    frame = box.querySelector('iframe');
     if ((e.origin !== 'https://app.cal.com' && e.origin !== 'https://cal.com') || !frame || e.source !== frame.contentWindow) return;
     const d = e.data;
     if (!d || d.originator !== 'CAL') return;
@@ -480,13 +481,27 @@ function initCalEmbed() {
     note.hidden = false;
     note.textContent = 'Loading the calendar\u2026';
     window.addEventListener('message', onMessage);
-    // official embed route (app.cal.com/.../embed); no preflight, readiness is the Cal message alone
-    frame = document.createElement('iframe');
-    frame.className = 'cal-frame';
-    frame.title = 'Book a Hello with a Dev - booking calendar';
-    frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-    frame.src = box.dataset.calSrc;
-    box.appendChild(frame);
+    // Cal's official inline embed (embed.js from app.cal.com). Readiness is the Cal message alone.
+    const host = document.createElement('div');
+    host.className = 'cal-host';
+    box.appendChild(host);
+    const w = window;
+    w.Cal = w.Cal || function () {
+      const cal = w.Cal, ar = arguments;
+      if (!cal.loaded) {
+        cal.ns = {}; cal.q = cal.q || [];
+        const sc = document.createElement('script');
+        sc.src = 'https://app.cal.com/embed/embed.js';
+        sc.async = true;
+        sc.onerror = fail;
+        document.head.appendChild(sc);
+        cal.loaded = true;
+      }
+      (cal.q = cal.q || []).push(ar);
+    };
+    w.Cal('init', { origin: 'https://app.cal.com' });
+    w.Cal('inline', { elementOrSelector: host, calLink: 'adevwithpurpose/hello-with-a-dev', layout: 'month_view', config: { theme: 'dark' } });
+    w.Cal('ui', { theme: 'dark', layout: 'month_view' });
     timer = setTimeout(fail, 20000);
   };
   if (!('IntersectionObserver' in window)) { fail(); return; }
