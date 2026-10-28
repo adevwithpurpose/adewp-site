@@ -467,45 +467,24 @@ function initCalEmbed() {
   if (!box) return;
   const note = box.querySelector('.cal-embed-note');
   const BOOK = 'https://cal.com/adevwithpurpose/hello-with-a-dev';
-  let started = false, ready = false, failed = false, frame = null, timer = 0, slowNote = 0;
-  const seen = []; let triedRef = []; let frameLoaded = '';
-  const fail = (why) => {
+  let started = false, ready = false, failed = false, timer = 0, slowNote = 0;
+  const fail = () => {
     if (ready || failed) return;
-    const code = 'v69 ' + (typeof why === 'string' ? why : 'event') + ' tried=' + (triedRef.join('>') || '-') + ' frame=' + (box.querySelector('iframe') ? 'y' : 'n') + ' fl=' + (frameLoaded || '-') + ' msgs=' + (seen.join(',') || 'none');
-    // a loaded booking-page frame that is only silent is left on screen: never hide a usable calendar
-    const keepFrame = why === 'timeout' && frameLoaded === 'y' && box.classList.contains('is-peek');
     failed = true;
     clearTimeout(timer); clearTimeout(slowNote);
-    if (!keepFrame) { box.querySelectorAll('.cal-host').forEach((n) => n.remove()); frame = null; }
+    box.querySelectorAll('.cal-host').forEach((n) => n.remove());
     box.classList.remove('is-loading');
-    box.classList.add(keepFrame ? 'is-silent' : 'is-failed');
+    box.classList.add('is-failed');
     note.hidden = false;
-    note.innerHTML = (keepFrame ? 'If the calendar below is not showing, ' : 'The booking calendar could not load in this browser. ') + '<a class="btn btn-primary cal-fallback-btn" href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a> <small class="cal-diag">Diagnostic: ' + code + '</small>';
-    // on-screen only probes (nothing is sent anywhere): can this browser fetch Cal's script and page?
-    const diag = note.querySelector('.cal-diag');
-    const probe = (label, url, opt) => fetch(url, opt).then((r) => label + '=' + (r.type === 'opaque' ? 'opaque' : r.status), (er) => label + '=err');
-    Promise.all([
-      probe('js1', 'https://cal.com/embed/embed.js', { cache: 'no-store' }),
-      probe('js2', 'https://app.cal.com/embed/embed.js', { cache: 'no-store' }),
-      probe('page', BOOK, { mode: 'no-cors', cache: 'no-store' })
-    ]).then((r) => { if (diag) diag.textContent += ' probe ' + r.join(' '); });
+    note.innerHTML = 'The booking calendar could not load in this browser. <a class="btn btn-primary cal-fallback-btn" href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a>';
   };
   const markReady = () => {
-    if (ready || (failed && !box.classList.contains('is-silent'))) return;
-    box.classList.remove('is-silent', 'is-peek');
+    if (ready || failed) return;
     ready = true;
     clearTimeout(timer); clearTimeout(slowNote);
     box.classList.remove('is-loading');
     box.classList.add('is-ready', 'is-loaded');
     note.hidden = true;
-  };
-  const onMessage = (e) => {
-    frame = box.querySelector('iframe');
-    if ((e.origin !== 'https://app.cal.com' && e.origin !== 'https://cal.com') || !frame || e.source !== frame.contentWindow) return;
-    const d = e.data;
-    if (!d || d.originator !== 'CAL') return;
-    if (d.type && seen.indexOf(d.type) < 0 && seen.length < 8) seen.push(d.type);
-    if (d.type === 'availabilityLoaded' || d.type === 'slotsFetched' || d.type === 'navigatedToBooker') markReady();
   };
   const start = () => {
     if (started) return;
@@ -513,7 +492,6 @@ function initCalEmbed() {
     box.classList.add('is-loading');
     note.hidden = false;
     note.innerHTML = 'Loading the calendar\u2026 <a href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a> instead.';
-    window.addEventListener('message', onMessage);
     // Cal's official inline embed. embed.js is the same file on cal.com and app.cal.com; some
     // networks/browsers block one host's script, so try cal.com first, then app.cal.com, then a
     // plain frame of the booking page. Readiness is always Cal's own event or a validated Cal message.
@@ -521,22 +499,7 @@ function initCalEmbed() {
     host.className = 'cal-host';
     box.appendChild(host);
     const w = window;
-    const tried = [];
-    const plainFrame = () => {
-      tried.push('frame');
-      host.innerHTML = '';
-      frame = document.createElement('iframe');
-      frame.className = 'cal-frame';
-      frame.title = 'Book a Hello with a Dev - booking calendar';
-      frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-      frame.src = BOOK + '?embed=true&layout=month_view&theme=dark';
-      frame.addEventListener('load', () => { frameLoaded = 'y'; });
-      host.appendChild(frame);
-      // if the booking-page frame stays silent, show it (bounded) so a usable frame is never hidden
-      setTimeout(() => { if (!ready && !failed) box.classList.add('is-peek'); }, 20000);
-    };
     const attempt = (origin) => {
-      tried.push(origin.replace('https://', ''));
       delete w.Cal;
       host.innerHTML = '';
       w.Cal = function () {
@@ -549,7 +512,7 @@ function initCalEmbed() {
           sc.onerror = () => {
             if (ready || failed) return;
             if (origin === 'https://cal.com') attempt('https://app.cal.com');
-            else plainFrame();
+            else fail();
           };
           document.head.appendChild(sc);
           cal.loaded = true;
@@ -561,16 +524,15 @@ function initCalEmbed() {
       w.Cal('ui', { theme: 'dark', layout: 'month_view' });
       // official Cal embed events: linkReady / linkFailed (cal.com/help/embedding/embed-events)
       w.Cal('on', { action: 'linkReady', callback: markReady });
-      w.Cal('on', { action: 'linkFailed', callback: (ev) => { const c = ev && ev.detail && ev.detail.data && ev.detail.data.code; fail('linkFailed:' + (c || '?')); } });
+      w.Cal('on', { action: 'linkFailed', callback: (ev) => { fail(); } });
     };
-    triedRef = tried;
     attempt('https://cal.com');
     // The booker is a heavy app (about 80 requests). On a slow connection it can take well over
     // 20s, so do not give up early: say it is slow, keep loading, and only give up after 90s.
     slowNote = setTimeout(() => { if (!ready && !failed) note.innerHTML = 'Taking longer than expected\u2026 <a href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a> instead.'; }, 12000);
-    timer = setTimeout(() => fail('timeout'), 90000);
+    timer = setTimeout(() => fail(), 90000);
   };
-  if (!('IntersectionObserver' in window)) { fail('noIO'); return; }
+  if (!('IntersectionObserver' in window)) { fail(); return; }
   const io = new IntersectionObserver((es) => {
     if (es.some((e) => e.isIntersecting)) { io.disconnect(); start(); }
   }, { rootMargin: '0px 0px 500px 0px' });
