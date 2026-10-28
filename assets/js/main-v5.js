@@ -468,10 +468,10 @@ function initCalEmbed() {
   const note = box.querySelector('.cal-embed-note');
   const BOOK = 'https://cal.com/adevwithpurpose/hello-with-a-dev';
   let started = false, ready = false, failed = false, frame = null, timer = 0, slowNote = 0;
-  const seen = [];
+  const seen = []; let triedRef = [];
   const fail = (why) => {
     if (ready || failed) return;
-    const code = 'v67 ' + (typeof why === 'string' ? why : 'event') + ' frame=' + (box.querySelector('iframe') ? 'y' : 'n') + ' msgs=' + (seen.join(',') || 'none');
+    const code = 'v68 ' + (typeof why === 'string' ? why : 'event') + ' tried=' + (triedRef.join('>') || '-') + ' frame=' + (box.querySelector('iframe') ? 'y' : 'n') + ' msgs=' + (seen.join(',') || 'none');
     failed = true;
     clearTimeout(timer); clearTimeout(slowNote);
     box.querySelectorAll('.cal-host').forEach((n) => n.remove()); frame = null;
@@ -503,30 +503,54 @@ function initCalEmbed() {
     note.hidden = false;
     note.innerHTML = 'Loading the calendar\u2026 <a href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a> instead.';
     window.addEventListener('message', onMessage);
-    // Cal's official inline embed (embed.js from app.cal.com). Readiness is the Cal message alone.
+    // Cal's official inline embed. embed.js is the same file on cal.com and app.cal.com; some
+    // networks/browsers block one host's script, so try cal.com first, then app.cal.com, then a
+    // plain frame of the booking page. Readiness is always Cal's own event or a validated Cal message.
     const host = document.createElement('div');
     host.className = 'cal-host';
     box.appendChild(host);
     const w = window;
-    w.Cal = w.Cal || function () {
-      const cal = w.Cal, ar = arguments;
-      if (!cal.loaded) {
-        cal.ns = {}; cal.q = cal.q || [];
-        const sc = document.createElement('script');
-        sc.src = 'https://app.cal.com/embed/embed.js';
-        sc.async = true;
-        sc.onerror = () => fail('script');
-        document.head.appendChild(sc);
-        cal.loaded = true;
-      }
-      (cal.q = cal.q || []).push(ar);
+    const tried = [];
+    const plainFrame = () => {
+      tried.push('frame');
+      host.innerHTML = '';
+      frame = document.createElement('iframe');
+      frame.className = 'cal-frame';
+      frame.title = 'Book a Hello with a Dev - booking calendar';
+      frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+      frame.src = BOOK + '?embed=true&layout=month_view&theme=dark';
+      host.appendChild(frame);
     };
-    w.Cal('init', { origin: 'https://app.cal.com' });
-    w.Cal('inline', { elementOrSelector: host, calLink: 'adevwithpurpose/hello-with-a-dev', layout: 'month_view', config: { theme: 'dark' } });
-    w.Cal('ui', { theme: 'dark', layout: 'month_view' });
-    // official Cal embed events: linkReady / linkFailed (cal.com/help/embedding/embed-events)
-    w.Cal('on', { action: 'linkReady', callback: markReady });
-    w.Cal('on', { action: 'linkFailed', callback: (ev) => { const c = ev && ev.detail && ev.detail.data && ev.detail.data.code; fail('linkFailed:' + (c || '?')); } });
+    const attempt = (origin) => {
+      tried.push(origin.replace('https://', ''));
+      delete w.Cal;
+      host.innerHTML = '';
+      w.Cal = function () {
+        const cal = w.Cal, ar = arguments;
+        if (!cal.loaded) {
+          cal.ns = {}; cal.q = cal.q || [];
+          const sc = document.createElement('script');
+          sc.src = origin + '/embed/embed.js';
+          sc.async = true;
+          sc.onerror = () => {
+            if (ready || failed) return;
+            if (origin === 'https://cal.com') attempt('https://app.cal.com');
+            else plainFrame();
+          };
+          document.head.appendChild(sc);
+          cal.loaded = true;
+        }
+        (cal.q = cal.q || []).push(ar);
+      };
+      w.Cal('init', { origin });
+      w.Cal('inline', { elementOrSelector: host, calLink: 'adevwithpurpose/hello-with-a-dev', layout: 'month_view', config: { theme: 'dark' } });
+      w.Cal('ui', { theme: 'dark', layout: 'month_view' });
+      // official Cal embed events: linkReady / linkFailed (cal.com/help/embedding/embed-events)
+      w.Cal('on', { action: 'linkReady', callback: markReady });
+      w.Cal('on', { action: 'linkFailed', callback: (ev) => { const c = ev && ev.detail && ev.detail.data && ev.detail.data.code; fail('linkFailed:' + (c || '?')); } });
+    };
+    triedRef = tried;
+    attempt('https://cal.com');
     // The booker is a heavy app (about 80 requests). On a slow connection it can take well over
     // 20s, so do not give up early: say it is slow, keep loading, and only give up after 90s.
     slowNote = setTimeout(() => { if (!ready && !failed) note.innerHTML = 'Still loading on a slow connection\u2026 <a href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a> instead.'; }, 12000);
