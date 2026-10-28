@@ -262,12 +262,6 @@ body.v5 .demo-status:empty { display: none; }
 body.v5 .demo-modal-close { width: 44px; height: 44px; }
 
 /* v5.7: inline booking calendar (iframe added only near view) */
-body.v5 .cal-embed { margin-top: 2.2rem; max-width: 960px; min-height: 160px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--panel); overflow: hidden; position: relative; }
-body.v5 .cal-embed-note { margin: 0; padding: 1.4rem 1.2rem; color: var(--dim); font-size: .95rem; line-height: 1.6; }
-body.v5 .cal-embed-note[hidden] { display: none; }
-body.v5 .cal-embed a { color: var(--accent-2); }
-body.v5 .cal-frame { display: block; width: 100%; height: 600px; border: 0; background: transparent; color-scheme: dark; }
-@media (max-width: 640px) { body.v5 .cal-frame { height: 760px; } }
 
 /* v5.8: self-hosted Inter (no third-party font request), skip link, mobile header CTA */
 @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url(../fonts/inter-400.woff) format('woff'); }
@@ -326,9 +320,4 @@ body.v5 .bw-foot a { color: var(--accent-2); }
 @media (prefers-reduced-motion: reduce) { body.v5 .bw-grid span { transition: none; } }
 
 /* v5.12: the calendar frame stays collapsed until cal.com confirms it is usable */
-body.v5 .cal-embed:not(.is-ready) .cal-host { height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
-body.v5 .cal-host { width: 100%; min-height: 0; }
-body.v5 .cal-embed.is-failed { min-height: 0; }
-body.v5 .cal-fail-msg { display: block; }
-body.v5 .cal-embed a.cal-fallback-btn { display: flex; width: fit-content; margin-top: .9rem; color: #fff; text-decoration: none; }
 
