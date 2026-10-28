@@ -330,3 +330,5 @@ body.v5 .cal-embed:not(.is-ready) .cal-host { height: 1px; overflow: hidden; opa
 body.v5 .cal-host { width: 100%; min-height: 0; }
 body.v5 .cal-embed.is-failed { min-height: 0; }
 body.v5 .cal-embed a.cal-fallback-btn { display: inline-flex; margin-top: .9rem; color: #fff; text-decoration: none; }
+
+body.v5 .cal-diag { display: block; margin-top: .6rem; color: var(--dim); font-size: .72rem; opacity: .7; word-break: break-word; }
