@@ -208,6 +208,24 @@ function initDemoVideos() {
       slot.classList.add('is-paused');
     };
 
+    // Frame watchdog: a video whose clock runs while no new picture is presented looks frozen
+    // (timeline bar moves, image stuck). Presented frames are counted with requestVideoFrameCallback
+    // (static scenes still present frames); after 3s with none, reattach the source at the same time.
+    let lastPresented = performance.now(), recoveries = 0;
+    if (v.requestVideoFrameCallback) {
+      const onFrame = () => { lastPresented = performance.now(); v.requestVideoFrameCallback(onFrame); };
+      v.requestVideoFrameCallback(onFrame);
+      setInterval(() => {
+        if (v.paused || document.hidden || !v.src || v.readyState < 3 || recoveries >= 3) { lastPresented = performance.now(); return; }
+        if (performance.now() - lastPresented < 3000) return;
+        recoveries++;
+        lastPresented = performance.now();
+        const t = v.currentTime, wasMuted = v.muted;
+        v.load();
+        v.addEventListener('loadedmetadata', () => { try { v.currentTime = t; } catch (e) {} v.muted = wasMuted; const pr = v.play(); if (pr && pr.catch) pr.catch(() => {}); }, { once: true });
+      }, 1000);
+    }
+
     const tryPlay = () => {
       loadVideo();
       const p = v.play();
