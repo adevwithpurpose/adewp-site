@@ -332,3 +332,5 @@ body.v5 .cal-embed.is-failed { min-height: 0; }
 body.v5 .cal-embed a.cal-fallback-btn { display: inline-flex; margin-top: .9rem; color: #fff; text-decoration: none; }
 
 body.v5 .cal-diag { display: block; margin-top: .6rem; color: var(--dim); font-size: .72rem; opacity: .7; word-break: break-word; }
+body.v5 .cal-embed.is-peek:not(.is-ready) .cal-host { height: 520px; opacity: 1; pointer-events: auto; overflow: hidden; }
+body.v5 .cal-embed.is-peek:not(.is-ready) .cal-frame { height: 520px; }
