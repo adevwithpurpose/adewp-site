@@ -324,3 +324,8 @@ body.v5 .bw-foot { grid-column: 1 / -1; color: var(--faint); font-size: .85rem; 
 body.v5 .bw-foot a { color: var(--accent-2); }
 @media (max-width: 760px) { body.v5 .bw-card { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { body.v5 .bw-grid span { transition: none; } }
+
+/* v5.12: the calendar frame stays collapsed until cal.com confirms it is usable */
+body.v5 .cal-embed:not(.is-ready) .cal-frame { height: 1px; opacity: 0; pointer-events: none; }
+body.v5 .cal-embed.is-failed { min-height: 0; }
+body.v5 .cal-embed a.cal-fallback-btn { display: inline-flex; margin-top: .9rem; color: #fff; text-decoration: none; }

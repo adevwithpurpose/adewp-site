@@ -441,33 +441,58 @@ function initBusywork() {
 }
 
 /* ---------- booking calendar: embedded only when the contact section nears view ---------- */
+/* An iframe "load" event also fires for browser error pages, so the calendar only counts as
+   usable once cal.com itself reports that availability loaded. Otherwise it collapses to a
+   compact fallback card with the direct booking link. */
 function initCalEmbed() {
   const box = document.querySelector('[data-cal-embed]');
   if (!box) return;
   const note = box.querySelector('.cal-embed-note');
-  let started = false;
+  const BOOK = 'https://cal.com/adevwithpurpose/hello-with-a-dev';
+  let started = false, ready = false, failed = false, frame = null, timer = 0;
+  const fail = () => {
+    if (ready || failed) return;
+    failed = true;
+    clearTimeout(timer);
+    if (frame) { frame.remove(); frame = null; }
+    box.classList.remove('is-loading');
+    box.classList.add('is-failed');
+    note.hidden = false;
+    note.innerHTML = 'The booking calendar could not load in this browser. <a class="btn btn-primary cal-fallback-btn" href="' + BOOK + '" target="_blank" rel="noopener">Open the booking page</a>';
+  };
+  const onMessage = (e) => {
+    if (e.origin !== 'https://cal.com' || !frame || e.source !== frame.contentWindow) return;
+    const d = e.data;
+    if (!d || d.originator !== 'CAL') return;
+    if (d.type === 'availabilityLoaded' || d.type === 'slotsFetched' || d.type === 'navigatedToBooker') {
+      if (ready || failed) return;
+      ready = true;
+      clearTimeout(timer);
+      box.classList.remove('is-loading');
+      box.classList.add('is-ready', 'is-loaded');
+      note.hidden = true;
+    }
+  };
   const start = () => {
     if (started) return;
     started = true;
-    const f = document.createElement('iframe');
-    f.className = 'cal-frame';
-    f.title = 'Book a Hello with a Dev - booking calendar';
-    f.setAttribute('loading', 'lazy');
-    f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-    let done = false;
-    const fail = () => {
-      if (done) return;
-      note.innerHTML = 'The calendar did not load here. <a href="https://cal.com/adevwithpurpose/hello-with-a-dev" target="_blank" rel="noopener">Open it in a new tab</a>.';
-      note.hidden = false;
-    };
-    f.addEventListener('load', () => { done = true; box.classList.add('is-loaded'); note.hidden = true; });
-    f.addEventListener('error', fail);
-    setTimeout(fail, 15000);
+    box.classList.add('is-loading');
+    note.hidden = false;
     note.textContent = 'Loading the calendar\u2026';
-    f.src = box.dataset.calSrc;
-    box.appendChild(f);
+    window.addEventListener('message', onMessage);
+    // a blocked or unreachable cal.com rejects here (content blocker, DNS block, offline)
+    fetch(BOOK, { mode: 'no-cors', cache: 'no-store' }).then(() => {
+      if (failed) return;
+      frame = document.createElement('iframe');
+      frame.className = 'cal-frame';
+      frame.title = 'Book a Hello with a Dev - booking calendar';
+      frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+      frame.src = box.dataset.calSrc;
+      box.appendChild(frame);
+      timer = setTimeout(fail, 14000);
+    }, fail);
   };
-  if (!('IntersectionObserver' in window)) return; // direct link stays as the fallback
+  if (!('IntersectionObserver' in window) || !window.fetch) { fail(); return; }
   const io = new IntersectionObserver((es) => {
     if (es.some((e) => e.isIntersecting)) { io.disconnect(); start(); }
   }, { rootMargin: '0px 0px 500px 0px' });
